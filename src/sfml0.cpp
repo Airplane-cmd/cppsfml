@@ -68,7 +68,7 @@ class Atom
 		Vector m_elS;
 		sf::Color color;
 	public:
-		Atom(int charge = 1, int radious = 50, int mass = 1, bool staticP = 0, Vector vec = setVector(1920/2, 1080/2)) : m_charge{charge}, m_radious{radious}, m_mass{mass}, m_static{staticP}{};
+		Atom(int charge = 1, int radious = 50, int mass = 1, bool staticP = 0, Vector vec = setVector(1920/2, 1080/2) ) : m_charge{charge}, m_radious{radious}, m_mass{mass}, m_static{staticP}{};
 //		{
 			//m_pos = setVector(960, 540);
 			//m_pos = Vector::Vector(1920/2, 1080/2);
