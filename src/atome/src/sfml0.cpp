@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 #include <chrono>
+#include <stdlib.h>
+#include <ctime>
 class Continuum
 {
 	private:
@@ -61,14 +63,14 @@ class Atom
 		int m_radious;
 		int m_mass;
 		bool m_static;
-		Vector m_pos;
-		Vector m_velosity;
-		Vector m_accel;
-		Vector m_sumForce;
-		Vector m_elS;
+		Vector m_pos();
+		Vector m_velosity();
+		Vector m_accel();
+		Vector m_sumForce();
+		Vector m_elS();
 		sf::Color color;
 	public:
-		Atom(int charge = 1, int radious = 50, int mass = 1, bool staticP = 0, Vector vec = setVector(1920/2, 1080/2)) : m_charge{charge}, m_radious{radious}, m_mass{mass}, m_static{staticP}j{};
+		Atom(int charge = 1, int radious = 50, int mass = 1, bool staticP = 0, Vector vec = setVector(1920/2, 1080/2)) : m_charge{charge}, m_radious{radious}, m_mass{mass}, m_static{staticP}{};
 //		{
 			//m_pos = setVector(960, 540);
 			//m_pos = Vector::Vector(1920/2, 1080/2);
@@ -90,11 +92,22 @@ class Atom
 };
 int main()
 {
-	int xPole = 1920;
-	int yPole = 1080;
+	srand(time(0));
+	rand();
+	int xPole = 1000;
+	int yPole = 1000;
+	int rad = rand()%500;
 	sf::RenderWindow window(sf::VideoMode(xPole, yPole), "std::string *Freudistic_name");
-	sf::CircleShape shape(100.f);
-	shape.setFillColor(sf::Color::Blue);
+	sf::CircleShape shape(rad);
+	shape.setFillColor(sf::Color(rand()%255, rand()%255, rand()%255));
+	int sx = 0;    
+	int sy = 0;
+        int x = rand()%10; 
+	int y = rand()%10;
+	int setX = rand()%(xPole - rad * 2);
+	int setY = rand()%(yPole - rad * 2);
+	std::cout<<rad<<"  "<< setX <<" "<< setY<<std::endl;
+	shape.move(setX, setY);
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -103,8 +116,16 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
-	
 		window.clear();
+		if((sy > (yPole - rad * 2)-setY)||(sy < -setY))
+			y = -y;
+		if((sx > (xPole - rad * 2)-setX)||(sx < -setX))
+			x = -x;
+
+		shape.move(x, y);
+		sx+=x;
+		sy+=y;
+		//std::cout << sx <<" " << sy<<std::endl;
 		window.draw(shape);
 		window.display();
 	}
