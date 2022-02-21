@@ -4,6 +4,10 @@
 #include <chrono>
 #include <stdlib.h>
 #include <ctime>
+
+	int xPole = 1000;
+	int yPole = 1000;
+	sf::RenderWindow window(sf::VideoMode(xPole, yPole), "std::string *Freudistic_name");
 class Continuum
 {
 	private:
@@ -19,18 +23,40 @@ class Continuum
 		{
 			++m_atoms;
 		}
+		void wait60()
+		{
+        		double latency = 0.016667;
+        		std::chrono::duration<double> frameTime;
+        		std::chrono::system_clock::time_point frameTime3 = std::chrono::system_clock::now();         
+        		while(frameTime < static_cast<std::chrono::duration<double>>(latency))
+        		{
+               			std::chrono::system_clock::time_point frameTime2 = std::chrono::system_clock::now();
+                		frameTime = frameTime2 - frameTime3; 
+                		//std::cout<<frameTime.count()<<std::endl;
+        		}
+        		//std::cout<<frameTime.count()<<std::endl;
+        		frameTime -= frameTime;
+		}
+
 };
 class Vector
 {
 	private:
-		int m_x;
-		int m_y;
+		double m_x;
+		double m_y;
 	public:
-		Vector(int x, int y)
+		Vector(double x, double y)
 		{
 			m_x = x;
 			m_y = y;
 		};
+		Vector(int x, int y)
+                {
+                        m_x = x;
+                        m_y = y;
+                };
+
+		//Vector(double x, double y) 
 		friend Vector operator+(const Vector &v1, const Vector &v2);
 		void operator=(const Vector &v1)
 		{
@@ -41,11 +67,12 @@ class Vector
                 {        
                         return sqrt(m_x*m_x+m_y*m_y);
                 }
-		void move(Vector vec)
+		void setVector(double x, double y)
 		{
-		//	move(vec.m_x, vec.m_y);
+			m_x = x;
+			m_y = y;
 		}
-
+		
 };
 Vector operator+(const Vector &v1, const Vector &v2)
 {
@@ -60,7 +87,7 @@ class Atom
 {
 	private:
 		int m_charge;
-		int m_radious;
+		int m_rad;
 		int m_mass;
 		bool m_static;
 		Vector m_pos();
@@ -70,11 +97,11 @@ class Atom
 		Vector m_elS();
 		sf::Color color;
 	public:
-		Atom(int charge = 1, int radious = 50, int mass = 1, bool staticP = 0, Vector vec = setVector(1920/2, 1080/2)) : m_charge{charge}, m_radious{radious}, m_mass{mass}, m_static{staticP}{};
-//		{
+		Atom(int charge = 1, int rad = 50, int mass = 1, bool staticP = 0/*, Vector vec = setVector(xPole/2 - m_rad, yPole/2 - m_rad)*/) : m_charge{charge}, m_rad{rad}, m_mass{mass}, m_static{staticP}
+		{
 			//m_pos = setVector(960, 540);
-			//m_pos = Vector::Vector(1920/2, 1080/2);
-//		}
+			m_pos().setVector(xPole/2 - m_rad, yPole/2 - m_rad);
+		}
 		void chooseColour(double par)
 		{
 
@@ -82,7 +109,7 @@ class Atom
 		void displayAtom(Atom ex)
 		{
 
-			sf::CircleShape atom(m_radious);
+			sf::CircleShape atom(m_rad);
 		}
 		
 
@@ -90,24 +117,62 @@ class Atom
 
 	
 };
+class Example
+{
+	private:
+		int rad = rand()%500;
+	//	float radf;
+		//sf::CircleShape shape();
+		sf::Color m_color();
+		int sx = 0;    
+        	int sy = 0;
+	        int x = rand()%5; 
+        	int y = rand()%5;
+        	int setX = rand()%(xPole - rad * 2);
+        	int setY = rand()%(yPole - rad * 2);
+		sf::CircleShape shape;
+		//sf::CircleShape shapei;
+	public:
+		Example()
+		{
+			
+			//rad = rand()%500;
+			//radf = rad;
+			//shape(radf);
+			//int rad = rand()%500;
+        		//shape(rad);
+			sf::CircleShape fuck(rad);
+			shape = fuck;
+			sf::Color m_color(rand()%255, rand()%255, rand()%255);
+			shape.setFillColor(m_color);
+			std::cout<<rad<<"  "<< setX <<" "<< setY<<std::endl;
+		        shape.move(setX, setY);
+		}
+		void displayEx()
+		{
+			if((sy > (yPole - rad * 2)-setY)||(sy < -setY))
+                        	y = -y;
+                	if((sx > (xPole - rad * 2)-setX)||(sx < -setX))
+                        	x = -x;
+
+                	shape.move(x, y);
+                	sx+=x;
+                	sy+=y;
+        	        //std::cout << sx <<" " << sy<<std::endl;
+	                window.draw(shape);
+		}
+};
+
+
+
+
 int main()
 {
+	Continuum con;
 	srand(time(0));
 	rand();
-	int xPole = 1000;
-	int yPole = 1000;
-	int rad = rand()%500;
-	sf::RenderWindow window(sf::VideoMode(xPole, yPole), "std::string *Freudistic_name");
-	sf::CircleShape shape(rad);
-	shape.setFillColor(sf::Color(rand()%255, rand()%255, rand()%255));
-	int sx = 0;    
-	int sy = 0;
-        int x = rand()%10; 
-	int y = rand()%10;
-	int setX = rand()%(xPole - rad * 2);
-	int setY = rand()%(yPole - rad * 2);
-	std::cout<<rad<<"  "<< setX <<" "<< setY<<std::endl;
-	shape.move(setX, setY);
+	Example ex;
+//	sf::RenderWindow window(sf::VideoMode(xPole, yPole), "std::string *Freudistic_name");
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -117,17 +182,9 @@ int main()
 				window.close();
 		}
 		window.clear();
-		if((sy > (yPole - rad * 2)-setY)||(sy < -setY))
-			y = -y;
-		if((sx > (xPole - rad * 2)-setX)||(sx < -setX))
-			x = -x;
-
-		shape.move(x, y);
-		sx+=x;
-		sy+=y;
-		//std::cout << sx <<" " << sy<<std::endl;
-		window.draw(shape);
+		ex.displayEx();
 		window.display();
+		con.wait60();
 	}
 	return 0;
 }
