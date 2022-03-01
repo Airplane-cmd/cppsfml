@@ -33,8 +33,8 @@ class Vector
                 double m_x;
                 double m_y;
         public:
-                Vector(double x = 0, double y = 0)
-                {
+		Vector(double x = 0, double y = 0)
+		{
                         m_x = x;
                         m_y = y;
                 };
@@ -57,7 +57,15 @@ class Vector
                 {        
                         return sqrt(m_x*m_x+m_y*m_y);
                 }
-                void setVector(double x, double y)
+		double getX()
+		{
+			return m_x;
+		}
+		double getY()
+                {       
+                        return m_y;
+                }
+                void set(double x, double y)
                 {
                         m_x = x;
                         m_y = y;
@@ -88,28 +96,65 @@ class Atome
                 Vector m_pos;
                 Vector m_velosity;
                 Vector m_accel;
-                Vector m_sumForce;
-                Vector m_elS;
+                //Vector m_sumForce;
+                Vector dS;
                 sf::Color color;
-		
+		sf::CircleShape shape;
+
         public:
 		friend class Continuum;
 		friend class Vector;
                 Atome(Vector vec = setVector(0, 0), double charge = 1, int rad = 50, int mass = 1, bool staticP = 0) : m_charge{charge}, m_rad{rad}, m_mass{mass}, m_static{staticP}, m_pos{vec}
 		{
+			sf::CircleShape fuck(m_rad);
+                        shape = fuck;
+                        sf::Color m_color(0, 0, 255);
+                        shape.setFillColor(m_color);
+                        shape.move(m_pos.getX(), m_pos.getY());
 
 		}
-                void displayAtom(Atome ex)
-                {
+		void mooving(Vector v)
+		{
+			shape.move(v.getX(), v.getY());
+		}
+		Vector getVelosity()
+		{
+			return m_velosity;
+		}
+		void setFillC(sf::Color c)
+		{
+			shape.setFillColor(c);
+		}
+/*		sf::Color setColor(Extremum extr)
+		{
+			int col = 255 *(extr.getMax() - extr.getMin())/( m_velosity.getVectorValue() - extr.getMin());
+			return sf::Color(col, 0, 255 - col);	
 
-                        sf::CircleShape atom(m_rad);
-                }
+		}*/
+		Vector c_dS(double t)
+		{
+			double x = m_velosity.getX()*t+m_accel.getX()*t*t/2;
+			double y = m_velosity.getY()*t+m_accel.getY()*t*t/2;;
+
+			dS = setVector(x, y);
+
+			return dS;
+		}
+                void displayAtome();
+                
     
 };
+sf::Color setColor(Atome at, Extremum extr)
+{
+	int col = 255 *(extr.getMax() - extr.getMin())/(at.getVelosity().getVectorValue() - extr.getMin());
+        return sf::Color(col, 0, 255 - col);    
+}
 
 class Continuum
 {
 	private:
+		double m_latency;
+		double m_TimeShift = 1;
 		int m_atomes = 0;
 		Atome* m_atomesA = new Atome[m_atomes];
 		double* m_acceles = new double[m_atomes];
@@ -119,10 +164,16 @@ class Continuum
 	public:
 		Continuum()
 		{
+			m_latency = 1/60;
 			for(int i = 0; i < m_atomes; ++i)
                         	m_S[m_atomes] = new double[m_atomes];
 
 		}
+		double getTime()
+		{
+			return m_TimeShift * m_latency;
+		}
+
 		friend class Atome;
 		/*void discon()//every iterative functuon of comtinuum
 		{
@@ -134,7 +185,7 @@ class Continuum
                         //m_atomesA[m_atomes] = &atome;
 
                 }
-		Extremum setColour()
+		Extremum getParam()
 		{
 			Vector max = setVector(0, 0);
 			Vector min = setVector(0, 0);
@@ -151,10 +202,10 @@ class Continuum
 		}
 		void wait60()
 		{
-        		double latency = 0.016667;
+        		
         		std::chrono::duration<double> frameTime;
         		std::chrono::system_clock::time_point frameTime3 = std::chrono::system_clock::now();         
-        		while(frameTime < static_cast<std::chrono::duration<double>>(latency))
+        		while(frameTime < static_cast<std::chrono::duration<double>>(m_latency))
         		{
                			std::chrono::system_clock::time_point frameTime2 = std::chrono::system_clock::now();
                 		frameTime = frameTime2 - frameTime3; 
@@ -165,6 +216,11 @@ class Continuum
 		}
 
 };
+void displayAtome(Atome a, Continuum c)
+{
+	a.setFillC(setColor(a, c.getParam()));
+	a.mooving(a.c_dS(c.getTime()));//a.moving(Vector vec)
+}
 class Example
 {
 	private:
@@ -193,7 +249,7 @@ class Example
 			shape = fuck;
 			sf::Color m_color(rand()%255, 0, rand()%255);
 			shape.setFillColor(m_color);
-			std::cout<<rad<<"  "<< setX <<" "<< setY<<std::endl;
+			std::cout<<rad<<" :sex: "<< setX <<" :sex: "<< setY<<std::endl;
 		        shape.move(setX, setY);
 		}
 		void displayEx()
