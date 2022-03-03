@@ -104,18 +104,32 @@ class Atome
         public:
 		friend class Continuum;
 		friend class Vector;
-                Atome(Vector vec = setVector(0, 0), double charge = 1, int rad = 50, int mass = 1, bool staticP = 0) : m_charge{charge}, m_rad{rad}, m_mass{mass}, m_static{staticP}, m_pos{vec}
+                Atome(Vector vec = setVector(0, 0), Vector vec1 = setVector(0,0), double charge = 1, int rad = 50, int mass = 1, bool staticP = 0) : m_charge{charge}, m_rad{rad}, m_mass{mass}, m_static{staticP}, m_pos{vec}, m_velosity{vec1}
 		{
 			sf::CircleShape fuck(m_rad);
                         shape = fuck;
-                        sf::Color m_color(0, 0, 255);
+                        sf::Color m_color(255, 0, 255);
                         shape.setFillColor(m_color);
                         shape.move(m_pos.getX(), m_pos.getY());
 
 		}
-		void mooving(Vector v)
+		void movef(double x = 1, double y = 1)
 		{
-			shape.move(v.getX(), v.getY());
+			window.draw(shape);
+                        shape.move(x, y);
+		}
+
+		void mooving(Vector s)
+		{
+			window.draw(shape);
+			shape.move(s.getX(), s.getY());
+//			shape.move(1, 1);
+			//window.draw(shape);
+//			std::cout<<"sX: "<<s.getX()<<" sY: "<<s.getY()<<std::endl;
+		}
+		sf::CircleShape getAtome()
+		{
+			return shape;
 		}
 		Vector getVelosity()
 		{
@@ -124,7 +138,12 @@ class Atome
 		void setFillC(sf::Color c)
 		{
 			shape.setFillColor(c);
+			//shape.setFillColor(sf::Color(255, 0, 0));
 		}
+		/*void Draw()
+		{
+			window.draw(shape);
+		}*/
 /*		sf::Color setColor(Extremum extr)
 		{
 			int col = 255 *(extr.getMax() - extr.getMin())/( m_velosity.getVectorValue() - extr.getMin());
@@ -137,16 +156,23 @@ class Atome
 			double y = m_velosity.getY()*t+m_accel.getY()*t*t/2;;
 
 			dS = setVector(x, y);
-
+			//std::cout<<"ds: "<<dS.getY()<<"  VelY: "<<m_velosity.getY()*t<<"  t: "<<t<<std::endl;
 			return dS;
 		}
                 void displayAtome();
+		sf::Color setColor(Extremum);
                 
     
 };
-sf::Color setColor(Atome at, Extremum extr)
+/*sf::Color setColor(Atome at, Extremum extr)
 {
 	int col = 255 *(extr.getMax() - extr.getMin())/(at.getVelosity().getVectorValue() - extr.getMin());
+        return sf::Color(col, 0, 255 - col);    
+}*/
+sf::Color Atome::setColor(Extremum extr)
+{
+        int col = 255 *(extr.getMax() - extr.getMin())/(m_velosity.getVectorValue() - extr.getMin());
+	std::cout<<col<<std::endl;
         return sf::Color(col, 0, 255 - col);    
 }
 
@@ -216,10 +242,15 @@ class Continuum
 		}
 
 };
-void displayAtome(Atome a, Continuum c)
+
+Continuum con;
+void Atome::displayAtome()//(Atome a)//, Continuum c)
 {
-	a.setFillC(setColor(a, c.getParam()));
-	a.mooving(a.c_dS(c.getTime()));//a.moving(Vector vec)
+
+	shape.setFillColor(this->setColor(con.getParam()));
+	shape.move((this)->c_dS(con.getTime()).getX(), (this)->c_dS(con.getTime()).getY());
+	window.draw(shape);
+
 }
 class Example
 {
@@ -272,13 +303,15 @@ class Example
 
 int main()
 {
-	Continuum con;
+//	Continuum con;
 	srand(time(0));
 	rand();
 	Example ex;
-	Example ex1;
+	/*Example ex1;
 	Example ex2;
-	Example ex3;
+	Example ex3;*/
+	Atome hydrogen(setVector(100, 100), setVector(100, 0), 1, 50, 1, 0);
+	Atome hydrogen1(setVector(200, 200), setVector(200, 0), 1, 50, 1, 0);
 
 
 
@@ -293,10 +326,13 @@ int main()
 				window.close();
 		}
 		window.clear();
+		hydrogen.displayAtome();
+		hydrogen1.displayAtome();//, con);
+		//displayAtome(hydrogen1);//, con);
 		ex.displayEx();
-		ex1.displayEx();
+		/*ex1.displayEx();
 		ex2.displayEx();
-		ex3.displayEx();
+		ex3.displayEx();*/
 		window.display();
 		con.wait60();
 	}
