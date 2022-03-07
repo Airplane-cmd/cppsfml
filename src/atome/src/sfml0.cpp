@@ -181,7 +181,7 @@ class Continuum
 		Atome* m_atomesA = new Atome[m_atomes];
 		double* m_acceles = new double[m_atomes];
 		double* m_velocities = new double[m_atomes];
-		double** m_S = new double*[m_atomes];
+//		double** m_S = new double*[m_atomes];
 		
 	public:
 		Continuum()
@@ -190,8 +190,8 @@ class Continuum
                         min = setVector(0, 0);  
 
 			m_latency = 1.0/60.0;
-			for(int i = 0; i < m_atomes; ++i)
-                        	m_S[m_atomes] = new double[m_atomes];
+//			for(int i = 0; i < m_atomes; ++i)
+//                      	m_S[m_atomes] = new double[m_atomes];
 
 		}
 		double getTime()
@@ -207,17 +207,21 @@ class Continuum
 		void addAtomes(Atome &atome)
                 {
                         ++m_atomes;
-			if(atome.getID() == m_atomes)
+//			if(atome.getID() == m_atomes)
 				m_atomesA[m_atomes] = atome;
                         //m_atomesA[m_atomes] = &atome;
 
                 }
+		int getAtomes()
+		{
+			return m_atomes;
+		}
 		Extremum getParam()
 		{
 //			max = setVector(0, 0);
 			min = m_atomesA[1].m_velosity;
 			std::cout<<"max: " <<max.getVectorValue()<<"   min: "<<min.getVectorValue()<<"   Atomes:   "<<m_atomes<<std::endl;
-			for(int i = 1; i <= m_atomes; ++i)
+			for(int i = 1; i < m_atomes+1; ++i)
 			{	
 				
 				if (m_atomesA[i].m_velosity.getVectorValue()>max.getVectorValue())
@@ -252,9 +256,13 @@ Continuum con;
 
 void Atome::displayAtome()//(Atome a)//, Continuum c)
 {
+	if((con.getAtomes())<(this->getID()))
+                con.addAtomes(*this);
+
 	shape.setFillColor(this->setColor(con.getParam()));
 	shape.move((this)->c_dS(con.getTime()).getX(), (this)->c_dS(con.getTime()).getY());
 	window.draw(shape);
+
 
 //	std::cout<<this->getID()<<"f: "<<this->getVelosity().getVectorValue()<<std::endl;
 
@@ -319,13 +327,16 @@ int main()
 	Example ex2;
 	Example ex3;*/
 	Atome hydrogen(setVector(0, 100), setVector(100, 0), 1, 50, 1, 0);
-//	Atome hydrogen1(setVector(0, 200), setVector(200, 0), 1, 50, 1, 0);
+	Atome hydrogen1(setVector(0, 200), setVector(200, 0), 1, 50, 1, 0);
 	Atome hydrogen2(setVector(0, 300), setVector(300, 0), 1, 50, 1, 0);
-	con.addAtomes(hydrogen);
-	con.addAtomes(hydrogen2);
+	Atome hydrogen3(setVector(0, 400), setVector(400, 0), 1, 50, 1, 0);
+
+//	con.addAtomes(hydrogen);
+//	con.addAtomes(hydrogen1);
+//	con.addAtomes(hydrogen2);
 
 
-//	sf::RenderWindow window(sf::VideoMode(xPole, yPole), "std::string *Freudistic_name");
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -334,11 +345,13 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
-		con.getParam();
+//		con.getParam();
 		window.clear();
 		hydrogen.displayAtome();
-//		hydrogen1.displayAtome();
-		hydrogen2.displayAtome();//, con);
+		hydrogen1.displayAtome();
+		hydrogen2.displayAtome();
+		hydrogen3.displayAtome();
+
 		//displayAtome(hydrogen1);//, con);
 		/*ex.displayEx();
 		ex1.displayEx();
