@@ -4,6 +4,7 @@
 #include <chrono>
 #include <stdlib.h>
 #include <ctime>
+#include <vector>
 
 	int xPole = 1920;
 	int yPole = 1080;
@@ -114,6 +115,7 @@ class Atome
                         sf::Color m_color(255, 0, 255);
                         shape.setFillColor(m_color);
                         shape.move(m_pos.getX(), m_pos.getY());
+//			std::cout<<"ID: "<<m_id<<std::endl;
 
 		}
 		void movef(double x = 1, double y = 1)
@@ -178,6 +180,7 @@ class Continuum
 		double m_latency;
 		double m_TimeShift = 1;
 		int m_atomes = 0;
+//		std::vector<Atome> m_atomesA;
 		Atome* m_atomesA = new Atome[m_atomes];
 		double* m_acceles = new double[m_atomes];
 		double* m_velocities = new double[m_atomes];
@@ -208,7 +211,7 @@ class Continuum
                 {
                         ++m_atomes;
 //			if(atome.getID() == m_atomes)
-				m_atomesA[m_atomes] = atome;
+				m_atomesA[atome.getID()-1] = atome;//fix
                         //m_atomesA[m_atomes] = &atome;
 
                 }
@@ -219,9 +222,9 @@ class Continuum
 		Extremum getParam()
 		{
 //			max = setVector(0, 0);
-			min = m_atomesA[1].m_velosity;
-			std::cout<<"max: " <<max.getVectorValue()<<"   min: "<<min.getVectorValue()<<"   Atomes:   "<<m_atomes<<std::endl;
-			for(int i = 1; i < m_atomes+1; ++i)
+			min = m_atomesA[0].m_velosity;
+				
+			for(int i = 0; i < m_atomes; ++i)
 			{	
 				
 				if (m_atomesA[i].m_velosity.getVectorValue()>max.getVectorValue())
@@ -230,6 +233,8 @@ class Continuum
 					min = m_atomesA[i].m_velosity;
 //				std::cout<<m_atomesA[i].m_id<<"c: "<<m_atomesA[i].m_velosity.getVectorValue()<<std::endl;
 			}
+
+			std::cout<<"max: " <<max.getVectorValue()<<"   min: "<<min.getVectorValue()<<"   Atomes:   "<<m_atomes<<std::endl;
 			return Extremum(max.getVectorValue(),min.getVectorValue());
 
 
@@ -264,7 +269,7 @@ void Atome::displayAtome()//(Atome a)//, Continuum c)
 	window.draw(shape);
 
 
-//	std::cout<<this->getID()<<"f: "<<this->getVelosity().getVectorValue()<<std::endl;
+	std::cout<<this->getID()<<"f: "<<this->getVelosity().getVectorValue()<<std::endl;
 
 }
 class Example
@@ -328,7 +333,7 @@ int main()
 	Example ex3;*/
 	Atome hydrogen(setVector(0, 100), setVector(100, 0), 1, 50, 1, 0);
 	Atome hydrogen1(setVector(0, 200), setVector(200, 0), 1, 50, 1, 0);
-	Atome hydrogen2(setVector(0, 300), setVector(300, 0), 1, 50, 1, 0);
+//	Atome hydrogen2(setVector(0, 300), setVector(300, 0), 1, 50, 1, 0);
 	Atome hydrogen3(setVector(0, 400), setVector(400, 0), 1, 50, 1, 0);
 
 //	con.addAtomes(hydrogen);
@@ -345,11 +350,12 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
+//		std::cout<<con.getAtomes()<<std::endl;
 //		con.getParam();
 		window.clear();
 		hydrogen.displayAtome();
 		hydrogen1.displayAtome();
-		hydrogen2.displayAtome();
+//		hydrogen2.displayAtome();
 		hydrogen3.displayAtome();
 
 		//displayAtome(hydrogen1);//, con);
