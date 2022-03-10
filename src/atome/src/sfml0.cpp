@@ -180,8 +180,8 @@ class Continuum
 		double m_latency;
 		double m_TimeShift = 1;
 		int m_atomes = 0;
-//		std::vector<Atome> m_atomesA;
-		Atome* m_atomesA = new Atome[m_atomes];
+		std::vector<Atome> m_atomesA;
+//		Atome* m_atomesA = new Atome[m_atomes];
 		double* m_acceles = new double[m_atomes];
 		double* m_velocities = new double[m_atomes];
 //		double** m_S = new double*[m_atomes];
@@ -211,7 +211,7 @@ class Continuum
                 {
                         ++m_atomes;
 //			if(atome.getID() == m_atomes)
-				m_atomesA[atome.getID()-1] = atome;//fix
+			m_atomesA.push_back(atome);//fix
                         //m_atomesA[m_atomes] = &atome;
 
                 }
@@ -333,7 +333,7 @@ int main()
 	Example ex3;*/
 	Atome hydrogen(setVector(0, 100), setVector(100, 0), 1, 50, 1, 0);
 	Atome hydrogen1(setVector(0, 200), setVector(200, 0), 1, 50, 1, 0);
-//	Atome hydrogen2(setVector(0, 300), setVector(300, 0), 1, 50, 1, 0);
+	Atome hydrogen2(setVector(0, 300), setVector(300, 0), 1, 50, 1, 0);
 	Atome hydrogen3(setVector(0, 400), setVector(400, 0), 1, 50, 1, 0);
 
 //	con.addAtomes(hydrogen);
@@ -355,7 +355,7 @@ int main()
 		window.clear();
 		hydrogen.displayAtome();
 		hydrogen1.displayAtome();
-//		hydrogen2.displayAtome();
+		hydrogen2.displayAtome();
 		hydrogen3.displayAtome();
 
 		//displayAtome(hydrogen1);//, con);
