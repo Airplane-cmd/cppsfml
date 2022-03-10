@@ -118,6 +118,10 @@ class Atome
 //			std::cout<<"ID: "<<m_id<<std::endl;
 
 		}
+		void setVelosity(Vector vel)
+		{
+			m_velosity = vel;
+		}
 		void movef(double x = 1, double y = 1)
 		{
 			window.draw(shape);
@@ -180,7 +184,7 @@ class Continuum
 		double m_latency;
 		double m_TimeShift = 1;
 		int m_atomes = 0;
-		std::vector<Atome> m_atomesA;
+		std::vector<Atome*> m_atomesA;
 //		Atome* m_atomesA = new Atome[m_atomes];
 		double* m_acceles = new double[m_atomes];
 		double* m_velocities = new double[m_atomes];
@@ -207,7 +211,7 @@ class Continuum
 		{
 			selectColour();	
 		}*/
-		void addAtomes(Atome &atome)
+		void addAtomes(Atome *atome)
                 {
                         ++m_atomes;
 //			if(atome.getID() == m_atomes)
@@ -222,19 +226,19 @@ class Continuum
 		Extremum getParam()
 		{
 //			max = setVector(0, 0);
-			min = m_atomesA[0].m_velosity;
+			min = m_atomesA[0]->m_velosity;
 				
 			for(int i = 0; i < m_atomes; ++i)
 			{	
 				
-				if (m_atomesA[i].m_velosity.getVectorValue()>max.getVectorValue())
-					max = m_atomesA[i].m_velosity;
-				if(m_atomesA[i].m_velosity.getVectorValue()<min.getVectorValue())
-					min = m_atomesA[i].m_velosity;
-//				std::cout<<m_atomesA[i].m_id<<"c: "<<m_atomesA[i].m_velosity.getVectorValue()<<std::endl;
+				if (m_atomesA[i]->m_velosity.getVectorValue()>max.getVectorValue())
+					max = m_atomesA[i]->m_velosity;
+				if(m_atomesA[i]->m_velosity.getVectorValue()<min.getVectorValue())
+					min = m_atomesA[i]->m_velosity;
+//				std::cout<<m_atomesA[i]->m_id<<"c: "<<m_atomesA[i]->m_velosity.getVectorValue()<<std::endl;
 			}
 
-			std::cout<<"max: " <<max.getVectorValue()<<"   min: "<<min.getVectorValue()<<"   Atomes:   "<<m_atomes<<std::endl;
+//			std::cout<<"max: " <<max.getVectorValue()<<"   min: "<<min.getVectorValue()<<"   Atomes:   "<<m_atomes<<std::endl;
 			return Extremum(max.getVectorValue(),min.getVectorValue());
 
 
@@ -262,14 +266,14 @@ Continuum con;
 void Atome::displayAtome()//(Atome a)//, Continuum c)
 {
 	if((con.getAtomes())<(this->getID()))
-                con.addAtomes(*this);
+                con.addAtomes(this);
 
 	shape.setFillColor(this->setColor(con.getParam()));
 	shape.move((this)->c_dS(con.getTime()).getX(), (this)->c_dS(con.getTime()).getY());
 	window.draw(shape);
 
 
-	std::cout<<this->getID()<<"f: "<<this->getVelosity().getVectorValue()<<std::endl;
+//	std::cout<<this->getID()<<"f: "<<this->getVelosity().getVectorValue()<<std::endl;
 
 }
 class Example
@@ -331,11 +335,12 @@ int main()
 	Example ex1;
 	Example ex2;
 	Example ex3;*/
+	double vel = 100;
 	Atome hydrogen(setVector(0, 100), setVector(100, 0), 1, 50, 1, 0);
-	Atome hydrogen1(setVector(0, 200), setVector(200, 0), 1, 50, 1, 0);
+	Atome hydrogen1(setVector(0, 200), setVector(vel, 0), 1, 50, 1, 0);
 	Atome hydrogen2(setVector(0, 300), setVector(300, 0), 1, 50, 1, 0);
 	Atome hydrogen3(setVector(0, 400), setVector(400, 0), 1, 50, 1, 0);
-
+	Atome hydrogen4(setVector(0, 500), setVector(500, 0), 1, 50, 1, 0);
 //	con.addAtomes(hydrogen);
 //	con.addAtomes(hydrogen1);
 //	con.addAtomes(hydrogen2);
@@ -344,6 +349,7 @@ int main()
 
 	while (window.isOpen())
 	{
+		vel+=10;
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -354,10 +360,12 @@ int main()
 //		con.getParam();
 		window.clear();
 		hydrogen.displayAtome();
+		hydrogen1.setVelosity(setVector(vel, 0));
 		hydrogen1.displayAtome();
 		hydrogen2.displayAtome();
 		hydrogen3.displayAtome();
-
+		hydrogen4.displayAtome();
+//		std::cout<<"VF: "<<hydrogen1.getVelosity().getVectorValue()<<std::endl;
 		//displayAtome(hydrogen1);//, con);
 		/*ex.displayEx();
 		ex1.displayEx();
