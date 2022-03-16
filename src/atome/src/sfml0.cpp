@@ -8,6 +8,7 @@
 
 	int xPole = 1920;
 	int yPole = 1080;
+	double timeK = 0.001;
 	sf::RenderWindow window(sf::VideoMode(xPole, yPole), "std::string *Freudistic_name");
 
 //class Atome;
@@ -44,11 +45,17 @@ class Vector
                         m_x = x;
                         m_y = y;
                 };
-
+		Vector(float x, float y)
+		{
+			m_x = x;
+			m_y = y;
+		}
                 //Vector(double x, double y) 
                 friend Vector operator+(const Vector &v1, const Vector &v2);
                 friend Vector operator-(const Vector &v1, const Vector &v2);
-
+		friend double operator*(const Vector &v1, const Vector &v2);
+		friend Vector operator*(const double &v1, const Vector &v2);
+		friend Vector operator*(const Vector &v1, const double &v2);
                 void operator=(const Vector &v1)
                 {
                         m_x = v1.m_x;
@@ -66,6 +73,14 @@ class Vector
                 {       
                         return m_y;
                 }
+		/*float getX()
+		{
+			return m_x;
+		}
+		float getY()
+		{
+			return m_y;
+		}*/
                 void set(double x, double y)
                 {
                         m_x = x;
@@ -86,6 +101,18 @@ Vector setVector(int xa, int ya)
 {
         return Vector(xa, ya);
 }
+double operator*(const Vector &v1, const Vector &v2)
+{
+        return(v1.m_x * v2.m_x + v1.m_y * v2.m_y);
+}
+Vector operator*(const double &v1, const Vector &v2)
+{
+        return Vector(v1 * v2.m_x, v1 * v2.m_y);
+}
+Vector operator*(const Vector &v1, const double &v2)
+{
+        return Vector(v2 * v1.m_x, v2 * v1.m_y);             
+}
 
 class Atome
 {
@@ -94,7 +121,7 @@ class Atome
 		int m_id;
                 double m_charge;
                 int m_rad;
-                int m_mass;
+                double m_mass;
                 bool m_static;
                 Vector m_pos;
                 Vector m_velosity;
@@ -107,7 +134,7 @@ class Atome
         public:
 		friend class Continuum;
 		friend class Vector;
-                Atome(Vector vec = setVector(0, 0), Vector vec1 = setVector(0,0), double charge = 1, int rad = 50, int mass = 1, bool staticP = 0) : m_charge{charge}, m_rad{rad}, m_mass{mass}, m_static{staticP}, m_pos{vec}, m_velosity{vec1}
+                Atome(Vector vec = setVector(0, 0), Vector vec1 = setVector(0, 0), Vector vec2 = setVector(0, 0), double charge = 1, int rad = 50, double mass = 1, bool staticP = 0) : m_charge{charge}, m_rad{rad}, m_mass{mass}, m_static{staticP}, m_pos{vec}, m_velosity{vec1}, m_accel{vec2}
 		{
 			m_id = ++id;
 			sf::CircleShape fuck(m_rad);
@@ -121,6 +148,10 @@ class Atome
 		void setVelosity(Vector vel)
 		{
 			m_velosity = vel;
+		}
+		void setAccel(Vector accel)
+		{
+			m_accel = accel;
 		}
 		void movef(double x = 1, double y = 1)
 		{
@@ -144,18 +175,29 @@ class Atome
 		{
 			return m_velosity;
 		}
+		Vector getAccel()
+		{
+			return m_accel;
+		}
 		int getID()
 		{
 			return m_id;
 		}
-		
+		Vector getPosition()
+		{
+			return m_pos;
+		}
 		Vector c_dS(double t)
 		{
+//			t = 1.0/60.0; 
+			 
 			double x = m_velosity.getX()*t+m_accel.getX()*t*t/2;
 			double y = m_velosity.getY()*t+m_accel.getY()*t*t/2;;
 
 			dS = setVector(x, y);
+			m_velosity = m_velosity + m_accel*t;
 			//std::cout<<"ds: "<<dS.getY()<<"  VelY: "<<m_velosity.getY()*t<<"  t: "<<t<<std::endl;
+			m_pos = m_pos + dS;
 			return dS;
 		}
                 void displayAtome();
@@ -182,23 +224,20 @@ class Continuum
 		Vector max;
 		Vector min;
 		double m_latency;
-		double m_TimeShift = 1;
+		double m_TimeShift = timeK;
 		int m_atomes = 0;
 		std::vector<Atome*> m_atomesA;
-//		Atome* m_atomesA = new Atome[m_atomes];
-		double* m_acceles = new double[m_atomes];
+		
+//		double* m_acceles = new double[m_atomes];
 		double* m_velocities = new double[m_atomes];
-//		double** m_S = new double*[m_atomes];
+//		
 		
 	public:
 		Continuum()
 		{
 			max = setVector(0, 0);       
                         min = setVector(0, 0);  
-
 			m_latency = 1.0/60.0;
-//			for(int i = 0; i < m_atomes; ++i)
-//                      	m_S[m_atomes] = new double[m_atomes];
 
 		}
 		double getTime()
@@ -243,6 +282,35 @@ class Continuum
 
 
 		}
+		Vector getAccel(Atome *atome)
+		{
+//			std::vector<Vector> distancies;
+//			std::vector<Vector> forces;
+			Vector force = setVector(0, 0);
+			Vector distance = setVector(0, 0);
+			for(int j = 0; j < m_atomes; ++j)
+			{
+//				distancies.push_back(m_atomesA[j]->m_pos - atome->m_pos);
+//				std::cout<<atome->getID()<<"pref: "<<force.getVectorValue()<<std::endl;
+				distance = (m_atomesA[j]->m_pos * 1.79e-4)-(atome->m_pos * 1.79e-4);
+									
+//				std::cout<<atome->getID()<<distance.getVectorValue()<<std::endl;
+				if((m_atomes != 1)&&(distance.getVectorValue() != 0))
+				{
+					force = force - (9e15 * atome->m_charge * m_atomesA[j]->m_charge)*(1/(pow(distance.getVectorValue(), 3)) * distance);
+//					std::cout<<distance.getVectorValue()<<std::endl;
+				}
+				
+//				std::cout<<atome->getID()<<": "<<atome->m_velosity.getVectorValue()<<std::endl;
+//				std::cout<<atome->getID()<<": "<<(9e9 * atome->m_mass * m_atomesA[j]->m_mass * (1/(pow(distance.getVectorValue(), 3)))*distance).getVectorValue()<<std::endl;
+//				std::cout<<atome->getID()<<": "<<(9e9 * atome->m_mass * m_atomesA[j]->m_mass * (1/(pow(distance.getVectorValue(), 3))))<<std::endl;
+				
+			}
+//			std::cout<<force.getVectorValue()<<std::endl;
+			std::cout<<atome->getID()<<": a: "<<atome->m_accel.getVectorValue()<<"  v: "<<atome->m_velosity.getVectorValue()<<std::endl;
+			return force * (1/atome->m_mass);
+			
+		}
 		void wait60()
 		{
         		
@@ -254,7 +322,7 @@ class Continuum
                 		frameTime = frameTime2 - frameTime3; 
                 		//std::cout<<frameTime.count()<<std::endl;
         		}
-        		//std::cout<<frameTime.count()<<std::endl;
+//			std::cout<<frameTime.count()<<std::endl;
         		frameTime -= frameTime;
 		}
 
@@ -267,13 +335,13 @@ void Atome::displayAtome()//(Atome a)//, Continuum c)
 {
 	if((con.getAtomes())<(this->getID()))
                 con.addAtomes(this);
-
+	this->setAccel(con.getAccel(this));
 	shape.setFillColor(this->setColor(con.getParam()));
-	shape.move((this)->c_dS(con.getTime()).getX(), (this)->c_dS(con.getTime()).getY());
+	shape.move(static_cast<float>((this)->c_dS(con.getTime()).getX()), static_cast<float>((this)->c_dS(con.getTime()).getY()));
 	window.draw(shape);
 
 
-//	std::cout<<this->getID()<<"f: "<<this->getVelosity().getVectorValue()<<std::endl;
+//	std::cout<<this->getID()<<"f: x: "<<this->getAccel().getX()<<"  Y: "<<this->getAccel().getY()<<std::endl;
 
 }
 class Example
@@ -299,7 +367,7 @@ class Example
 			//radf = rad;
 			//shape(radf);
 			//int rad = rand()%500;
-        		//shape(rad);
+	 		//shape(rad);
 			sf::CircleShape fuck(rad);
 			shape = fuck;
 			sf::Color m_color(rand()%255, 0, rand()%255);
@@ -331,25 +399,25 @@ int main()
 	srand(time(0));
 	rand();
 	int frame = 0;
-	/*Example ex;
-	Example ex1;
-	Example ex2;
-	Example ex3;*/
-	double vel = 100;
-	Atome hydrogen(setVector(0, 100), setVector(100, 0), 1, 50, 1, 0);
-	Atome hydrogen1(setVector(0, 200), setVector(vel, 0), 1, 50, 1, 0);
-	Atome hydrogen2(setVector(0, 300), setVector(300, 0), 1, 50, 1, 0);
-	Atome hydrogen3(setVector(0, 400), setVector(400, 0), 1, 50, 1, 0);
-	Atome hydrogen4(setVector(0, 500), setVector(500, 0), 1, 50, 1, 0);
-//	con.addAtomes(hydrogen);
-//	con.addAtomes(hydrogen1);
-//	con.addAtomes(hydrogen2);
+//	example ex;
+//	example ex1;
+//	Example ex2;
+//	Example ex3;
+//	double vel = 100;
+//	Atome hydrogen(setVector(0, 0), setVector(0, 0), setVector(0, 0), -1.6e-19, 50, 1.7e-27, 0);
+	Atome hydrogen1(setVector(50, 50), setVector(0, 0), setVector(0, 0), -1.6e-19, 50, 1.7e-27, 0);
+	Atome hydrogen2(setVector(400, 400), setVector(0, 0), setVector(0, 0), -1.e-19, 50, 1.7e-27, 0);
+//	Atome hydrogen3(setVector(0, 400), setVector(0, 0), setVector(0, 0), 1, 50, 1, 0);
+//	Atome hydrogen4(setVector(500, 500), setVector(-11, -11), setVector(0, 0), 1, 50, 1.7e-27, 0);
+//	con.addAtomes(*hydrogen);
+//	con.addAtomes(*hydrogen1);
+//	con.addAtomes(*hydrogen2);
 
 
 
 	while (window.isOpen())
 	{
-		vel+=10;
+//		vel+=10;
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -359,18 +427,17 @@ int main()
 //		std::cout<<con.getAtomes()<<std::endl;
 //		con.getParam();
 		window.clear();
-		hydrogen.displayAtome();
-		hydrogen1.setVelosity(setVector(vel, 0));
+//		hydrogen.displayAtome();
 		hydrogen1.displayAtome();
 		hydrogen2.displayAtome();
-		hydrogen3.displayAtome();
-		hydrogen4.displayAtome();
+//		hydrogen3.displayAtome();
+//		hydrogen4.displayAtome();
 //		std::cout<<"VF: "<<hydrogen1.getVelosity().getVectorValue()<<std::endl;
 		//displayAtome(hydrogen1);//, con);
-		/*ex.displayEx();
-		ex1.displayEx();
-		ex2.displayEx();
-		ex3.displayEx();*/
+//		ex.displayEx();
+//		ex1.displayEx();
+//		ex2.displayEx();
+//		ex3.displayEx();
 		window.display();
 		con.wait60();
 	}
