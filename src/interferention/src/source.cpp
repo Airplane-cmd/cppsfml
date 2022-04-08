@@ -22,7 +22,7 @@ class Oscilator
 	}
 	double setValue(double r, double t)
 	{
-		return m_Ez*cos(2*M_PI*t*C/m_Lambda-2*M_PI*r/m_Lambda);
+		return (m_Ez*cos(2*M_PI / m_Lambda*(t*C - r)));
 	}
 	
 
@@ -33,26 +33,36 @@ class Screen
 		double m_X;
 		double m_Y;
 		double m_PS;
+		double m_Max;
+		double m_Min;
 		sf::Vector3f m_PSx;
 		sf::Vector3f m_PSy;
 		sf::Vector3f m_Pos;
 		std::vector<Oscilator*> m_Oscilator;
+		std::vector<std::vector<std::vector<double>>> m_Distance;
+		std::vector<std::vector<double>> m_Values;
 	public:
 		Screen(double X = 1920, double Y = 1080):m_X{X}, m_Y{Y}
 		{
-
+			std::vector<std::vector<std::vector<double>>> dist(*(&m_Oscilator + 1) - m_Oscilator);
+			std::vector<std::vector<double>> values(m_X, std::vector<double>(m_Y)); 
+			m_Values = values;
 		}
 		void addOsc(Oscilator osc)
 		{
 			m_Oscilator.push_back(&osc);
 		}
-		void setColors()
-		{
-
-		}
 		void countDistances()
 		{
+			for(int i = 0; i < m_X; ++i)
+			{
+				for(int j = 0; j < m_Y; ++j)
+				{
+					sf::Vector3f L;
+					 
 
+				}
+			}
 		}
 		void setValues()
 		{
@@ -70,10 +80,12 @@ class Screen
                         G = 0;
 			for(int i = 0; i < m_X; ++i)
                         {       
-                        	R = 255/m_X*i;
+//                        	R = 255 - 255/sqrt(pow(m_Y,2)+pow(m_X, 2))*sqrt(pow(i, 2)+pow(j, 2)) ;
                         	for(int j = 0; j < m_Y; ++j)
                                 {       
-                                        B = 255/m_Y*j;
+                                        B = 255/sqrt(pow(m_Y,2)+pow(m_X, 2))*sqrt(pow(i, 2)+pow(j, 2));
+					R = 255 - 255/sqrt(pow(m_Y,2)+pow(m_X, 2))*sqrt(pow(i, 2)+pow(j, 2)) ;
+
 					pix[i][j].setFillColor(sf::Color(R, G, B));
                                 }       
 			}       
