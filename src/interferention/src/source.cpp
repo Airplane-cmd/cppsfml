@@ -155,7 +155,7 @@ class Screen
 						std::cout<<"RGB:"<<R<<" "<<G<<" "<<B<<std::endl;
 //						std::cout<<sizeof(m_Oscilator)/sizeof(m_Oscilator[0])<<std::endl;
 					}
-					return sf::Color(B, 0, B);
+					return sf::Color(0, 0, B);
 
 //                                }       
 //			}       
@@ -230,7 +230,7 @@ int main()
 	Screen src;
 	Oscilator osc(sf::Vector3f(0, 1000, -250), 0.0001);
 	Oscilator osc1(sf::Vector3f(0, 750, -500), 5);
-	Oscilator osc2(sf::Vector3f(0, 1500, -500), 2);
+	Oscilator osc2(sf::Vector3f(0, 1500, -500), 5);
 	Oscilator osc3(sf::Vector3f(0, 0, 0), 0.0001);
 //	src.addOsc(&osc);
 	src.addOsc(&osc1);
